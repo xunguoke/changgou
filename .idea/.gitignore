@@ -11,6 +11,7 @@
 # Compiled class file
 *.class
 
+E:\JavaProjects\Real\health_parent\health_dao\src\main\resources\applicationContext-dao.xml
 .idea
 *.iml
 # Log file
