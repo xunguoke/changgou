@@ -22,6 +22,7 @@
         padding: 0;
     }
     </style>
+    <script src="../js/axios-0.18.0.js"></script>
 </head>
 <body class="hold-transition skin-purple sidebar-mini">
     <div id="app">
@@ -57,18 +58,18 @@
                         <el-submenu v-for="menu in menuList" :index="menu.path">
                             <template slot="title">
                                 <i class="fa" :class="menu.icon"></i>
-                                {{menu.title}}
+                                {{menu.name}}
                             </template>
                             <template v-for="child in menu.children">
                                 <el-menu-item :index="child.path">
-                                    <a :href="child.linkUrl" target="right">{{child.title}}</a>
+                                    <a :href="child.linkUrl" target="right">{{child.name}}</a>
                                 </el-menu-item>
                             </template>
                         </el-submenu>
                     </el-menu>
                 </el-aside>
                 <el-container>
-                    <iframe name="right" class="el-main" src="ordersetting.html" width="100%" height="580px" frameborder="0"></iframe>
+                    <iframe name="right" class="el-main" src="ordersetting.html" width="100%" height="99%" frameborder="0"></iframe>
                 </el-container>
             </el-container>
         </el-container>
@@ -190,18 +191,34 @@
                     ]
                 }
             ]
+        },
+        mounted(){
+            // 获取登陆用户名
+            axios.get('/user/getUsername.do').then(res => {
+                if(res.data.flag){
+                    this.loginUsername = res.data.data;
+                    // 请求菜单
+                    axios.post('/menu/getMenu.do?username='+this.loginUsername).then(ress=>{
+                        if (ress.data.flag) {
+                            this.menuList = ress.data.data;
+                        }
+                    })
+                }else{
+                    this.$message.error(res.data.message);
+                }
+            })
         }
     });
     $(function() {
             var wd = 200;
             $(".el-main").css('width', $('body').width() - wd + 'px');
-            $.get("/user/getUsername.do",res=>{
-                if(res.flag){
-                    vue.loginUsername = res.data;
-                }else{
-                    alert(res.message);
-                }
-            });
+            // $.get("/user/getUsername.do",res=>{
+            //     if(res.flag){
+            //         vue.loginUsername = res.data;
+            //     }else{
+            //         alert(res.message);
+            //     }
+            // });
     });
 </script>
 </html>

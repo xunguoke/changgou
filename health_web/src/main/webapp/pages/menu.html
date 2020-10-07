@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <script src="../js/axios-0.18.0.js"></script>
+    <style>
+        .datatable {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            width: 100%;
+            max-width: 100%;
+            font-size: 14px;
+            color: rgb(96, 98, 102);
+            overflow: hidden;
+            flex: 1 1 0%;
+        }
+        .datatable td, .datatable th {
+            padding: 12px 0;
+            min-width: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            position: relative;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="hold-transition">
+<div id="app" class="custom-tree-container">
+    <div class="content-header">
+        <h1>系统管理<small>菜单管理</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>系统管理</el-breadcrumb-item>
+            <el-breadcrumb-item>菜单管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <el-button type="primary" @click="addMenu()">新增</el-button>
+            <el-tree v-loading="loading" style="width: 600px;"
+                     ref="tree"
+                     :props="defaultProps"
+                     :load="loadNode"
+                     :data="items"
+                     node-key="id"
+                     :expand-on-click-node="false"
+                     @check-change="checkChange"
+                     show-checkbox><span class="custom-tree-node" slot-scope="{ node, data }">
+                <span>{{ node.label }}</span>
+                <span>
+                    <el-button
+                            type="text"
+                            size="mini"
+                            @click="() => edit(node.id)">
+                        编辑
+                    </el-button>
+                    <el-button
+                            type="text"
+                            size="mini"
+                            @click="() => delete(node.id)">
+                        删除
+                    </el-button>
+                </span>
+            </span>
+            </el-tree>
+            <div class="add-form">
+                <el-dialog title="新增菜单" :visible.sync="dialogFormVisible">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form label-position="right" label-width="100px">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="名称">
+                                                <el-input v-model="formData.name"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12" v-if="formData.level==2">
+                                            <el-form-item label="地址">
+                                                <el-input v-model="formData.linkUrl"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="菜单类型">
+                                                <el-select v-model="formData.level">
+                                                    <el-option label="一级菜单" value=1></el-option>
+                                                    <el-option label="二级菜单" value=2></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12" v-if="formData.level==2">
+                                            <el-form-item label="父菜单ID">
+                                                <el-select v-model="formData.parentMenuId">
+                                                    <el-option v-for="parentMenu in parentIdList" :label="parentMenu.name" :value="parentMenu.parentMenuId"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="描述">
+                                                <el-input v-model="formData.description" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="可选二级菜单" name="second" >
+                                <div class="checkScrol">
+                                    <table class="datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>菜单名称</th>
+                                            <th>菜单地址</th>
+                                            <th>菜单描述</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in tableData">
+                                            <td>
+                                                <input :id="c.id" v-model="childrenIds" type="checkbox" :value="c.id">
+                                            </td>
+                                            <td><label :for="c.id">{{c.name}}</label></td>
+                                            <td><label :for="c.id">{{c.linkUrl}}</label></td>
+                                            <td><label :for="c.id">{{c.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="menuAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+            <div class="add-form">
+                <el-dialog title="编辑菜单" :visible.sync="dialogFormVisible4Edit">
+                    <template>
+                        <el-tabs v-model="activeName" type="card">
+                            <el-tab-pane label="基本信息" name="first">
+                                <el-form label-position="right" label-width="100px">
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="名称">
+                                                <el-input v-model="formData.name"/>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12" v-if="formData.level==2">
+                                            <el-form-item label="地址">
+                                                <el-input v-model="formData.linkUrl"/>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="12">
+                                            <el-form-item label="菜单类型">
+                                                <el-select v-model="formData.level" disabled>
+                                                    <el-option label="一级菜单" value=1></el-option>
+                                                    <el-option label="二级菜单" value=2></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                        <el-col :span="12" v-if="formData.level==2">
+                                            <el-form-item label="父菜单ID">
+                                                <el-select v-model="formData.parentMenuId">
+                                                    <el-option v-for="parentMenu in parentIdList" :label="parentMenu.name" :value="parentMenu.parentMenuId"></el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-form-item label="描述">
+                                                <el-input v-model="formData.description" type="textarea"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-form>
+                            </el-tab-pane>
+                            <el-tab-pane label="可选二级菜单" name="second">
+                                <div class="checkScrol">
+                                    <table class="datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>选择</th>
+                                            <th>菜单名称</th>
+                                            <th>菜单地址</th>
+                                            <th>菜单描述</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="c in tableData">
+                                            <td>
+                                                <input :id="c.id" v-model="this.childrenIds" type="checkbox" :value="c.id">
+                                            </td>
+                                            <td><label :for="c.id">{{c.id}}</label></td>
+                                            <td><label :for="c.id">{{c.linkUrl}}</label></td>
+                                            <td><label :for="c.id">{{c.description}}</label></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleEdit()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                defaultProps: {
+                    label: 'name',
+                    children: 'children',
+                    isLeaf: 'leaf'
+                },
+                items: [],
+                loading: true,
+                selecte: {},
+                childrenIds:[],
+                count: 1,
+                dialogFormVisible:false,
+                dialogFormVisible4Edit:false,
+                activeName:'first',//添加/编辑窗口Tab标签名称
+                formData:{},
+                tableData:[],
+                parentIdList:[]
+            }
+        },
+        created:function(){
+            // 一开始模拟获取数据，使v-loading=true,获取数据之后再把v-loading复制为false
+            this.getChildren();
+        },
+        methods: {
+            loadNode(node, resolve){
+                // 加载树节点
+                console.log(node);
+                if (node.level === 0) {
+                    return resolve(this.items);
+                }
+
+                if (node.level >= 1) {
+                    if(!node.data.leaf){
+                        // 非叶子节点
+                        this.getChildren(node.data.id, resolve);
+                    }else{
+                        return resolve([]);
+                    }
+                }
+            },
+            // 重置表单
+            resetForm() {
+                this.formData = {};
+                this.activeName='first';
+                this.tableData=[];
+                this.parentIdList=[];
+            },
+            getChildren(){
+                axios.post('/menu/getMenu.do?username=admin').then(res=>{
+                    if (res.data.flag) {
+                        this.resetForm();
+                        this.items = res.data.data;
+                        this.loading=false;
+                        axios.get('/menu/getParentMenuID.do').then(ress=>{
+                            if (ress.data.flag) {
+                                this.parentIdList=ress.data.data;
+                                console.log(this.parentIdList);
+                            }
+                        })
+                    }
+                })
+            },
+            checkChange(data, checked, indeterminate) {
+                // 实现单选
+                console.log(data);
+                if(checked){
+                    // 当前点击为选择状态而不是取消选择
+                    this.selected = data;
+                }
+                // 获取当前所有被选中节点的id所组成的数组
+                let nodes = this.$refs.tree.getCheckedKeys();
+                if(nodes.length == 0 || nodes.length == 1) return;
+                // 注意传入的参数是数组
+                this.$refs.tree.setCheckedKeys([data.id]);
+            },
+            edit(id) {
+                this.resetForm();
+                this.getChildrenMenus();
+                this.dialogFormVisible4Edit=true;
+                axios.post('/menu/getMenuById.do?id='+id).then(res=>{
+                    if (res.data.flag) {
+                        this.formData=res.data.data;
+                        var level = this.formData.level;
+                        if (level===1) {
+                            this.formData.level='1';
+                        }else {
+                            this.formData.level='2';
+                        }
+                    }
+                })
+            },
+            handleEdit() {
+                axios.post('/menu/update.do',this.formData).then(res=>{
+                    if (res.data.flag) {
+                        console.log(1);
+                        this.getChildren();
+                    }
+                })
+            },
+            getChildrenMenus() {
+                axios.get('/menu/getChildrenMenus.do').then(res=>{
+                    if (res.data.flag) {
+                        this.tableData=res.data.data;
+                    }
+                })
+            },
+            addMenu() {
+                this.resetForm();
+                this.dialogFormVisible=true;
+                this.getChildrenMenus();
+            },
+            menuAdd() {
+                if (this.formData.level===1) {
+                    this.formData.parentMenuId=null;
+                }
+                console.log(this.formData.level);
+                axios.post('/menu/add.do?childrenIds='+this.childrenIds,this.formData).then(res=>{
+                    if (res.data.flag) {
+                        this.getChildren()
+                        this.dialogFormVisible=false;
+                    }
+                })
+            }
+        }
+    })
+</script>
+</html>
