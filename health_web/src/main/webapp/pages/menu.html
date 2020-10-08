@@ -54,12 +54,14 @@
     <div class="app-container">
         <div class="box">
             <el-button type="primary" @click="addMenu()">新增</el-button>
+            <el-button type="primary" @click="expandAllTree()">一键展开/收拢</el-button>
             <el-tree v-loading="loading" style="width: 600px;"
                      ref="tree"
                      :props="defaultProps"
                      :load="loadNode"
                      :data="items"
                      node-key="id"
+                     :default-expand-all="expandAll"
                      :expand-on-click-node="false"
                      @check-change="handleCheckChange"
                      show-checkbox><span class="custom-tree-node" slot-scope="{ node, data }">
@@ -68,13 +70,13 @@
                     <el-button
                             type="text"
                             size="mini"
-                            @click="() => edit(node.id)">
+                            @click="() => edit(data.id)">
                         编辑
                     </el-button>
                     <el-button
                             type="text"
                             size="mini"
-                            @click="() => delete(node.id)">
+                            @click="() => delete(data.id)">
                         删除
                     </el-button>
                 </span>
@@ -186,7 +188,7 @@
                                         <el-col :span="12" v-if="formData.level==2">
                                             <el-form-item label="父菜单ID">
                                                 <el-select v-model="formData.parentMenuId">
-                                                    <el-option v-for="parentMenu in parentIdList" :label="parentMenu.name" :value="parentMenu.parentMenuId"></el-option>
+                                                    <el-option v-for="parentMenu in this.parentIdList" :label="parentMenu.name" :value="parentMenu.parentMenuId"></el-option>
                                                 </el-select>
                                             </el-form-item>
                                         </el-col>
@@ -214,9 +216,9 @@
                                         <tbody>
                                         <tr v-for="c in tableData">
                                             <td>
-                                                <input :id="c.id" v-model="this.childrenIds" type="checkbox" :value="c.id">
+                                                <input :id="c.id" v-model="childrenIds" type="checkbox" :value="c.id">
                                             </td>
-                                            <td><label :for="c.id">{{c.id}}</label></td>
+                                            <td><label :for="c.id">{{c.name}}</label></td>
                                             <td><label :for="c.id">{{c.linkUrl}}</label></td>
                                             <td><label :for="c.id">{{c.description}}</label></td>
                                         </tr>
@@ -248,6 +250,7 @@
                     children: 'children',
                     isLeaf: 'leaf'
                 },
+                expandAll:true,
                 items: [],
                 loading: true,
                 selected: {},
@@ -282,6 +285,15 @@
                     }
                 }
             },
+            expandAllTree() {
+                if (this.expandAll) {
+                    this.expandAll=false;
+                }else {
+                    this.expandAll=true;
+                }
+                console.log(this.expandAll);
+                this.getChildren();
+            },
             // 重置表单
             resetForm() {
                 this.formData = {};
@@ -295,16 +307,11 @@
                         this.resetForm();
                         this.items = res.data.data;
                         this.loading=false;
-                        axios.get('/menu/getParentMenuID.do').then(ress=>{
-                            if (ress.data.flag) {
-                                this.parentIdList=ress.data.data;
-                                console.log(this.parentIdList);
-                            }
-                        })
                     }
                 })
             },
             handleCheckChange(data, checked, indeterminate) {
+                console.log(data.id);
                 // 实现单选
                 // console.log(data);
                 if(checked){
@@ -317,16 +324,27 @@
                 // 注意传入的参数是数组
                 this.$refs.tree.setCheckedKeys([data.id]);
             },
+            // 弹出编辑窗口
             edit(id) {
                 this.resetForm();
                 this.getChildrenMenus();
                 this.dialogFormVisible4Edit=true;
+                this.getParentMenuId();
                 axios.post('/menu/getMenuById.do?id='+id).then(res=>{
                     if (res.data.flag) {
                         this.formData=res.data.data;
-                        var level = this.formData.level;
+                        let level = this.formData.level;
                         if (level===1) {
                             this.formData.level='1';
+                            // 查询二级菜单列表(包含自带的和未分配的)
+                            axios.post('/menu/getChildrenIds.do?id='+id).then(ress=>{
+                                if (ress.data.flag) {
+                                    this.childrenIds=ress.data.data.childrenIds;
+                                    console.log(this.childrenIds);
+                                    this.tableData=ress.data.data.children;
+                                    console.log(this.tableData);
+                                }
+                            })
                         }else {
                             this.formData.level='2';
                         }
@@ -334,10 +352,11 @@
                 })
             },
             handleEdit() {
-                axios.post('/menu/update.do',this.formData).then(res=>{
+                axios.post('/menu/update.do?childrenIds='+this.childrenIds,this.formData).then(res=>{
                     if (res.data.flag) {
                         console.log(1);
                         this.getChildren();
+                        this.dialogFormVisible4Edit=false;
                     }
                 })
             },
@@ -348,11 +367,22 @@
                     }
                 })
             },
+            getParentMenuId() {
+                axios.get('/menu/getParentMenuID.do').then(ress=>{
+                    if (ress.data.flag) {
+                        this.parentIdList=ress.data.data;
+                        // console.log(this.parentIdList);
+                    }
+                })
+            },
+            // 弹出新增窗口
             addMenu() {
                 this.resetForm();
                 this.dialogFormVisible=true;
                 this.getChildrenMenus();
+                this.getParentMenuId();
             },
+            // 新增菜单
             menuAdd() {
                 if (this.formData.level===1) {
                     this.formData.parentMenuId=null;

@@ -16,9 +16,11 @@ public interface MenuService {
 
     void add(Map<String, Object> menu,Integer[] childrenIds);
 
-    Menu getMenuById(int id);
+    Map<String, Object> getMenuById(int id);
 
     void update(Map<String, Object> menu);
 
     List<Menu> getChildrenMenus();
+
+    Map<String, Object> getChildrenIds(Integer id);
 }
