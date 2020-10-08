@@ -10,7 +10,7 @@
 ### Java template
 # Compiled class file
 *.class
-
+/*/target/*
 E:\JavaProjects\Real\health_parent\health_dao\src\main\resources\applicationContext-dao.xml
 .idea
 *.iml

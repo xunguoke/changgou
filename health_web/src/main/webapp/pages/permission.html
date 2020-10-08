@@ -16,11 +16,11 @@
     <body class="hold-transition">
         <div id="app">
             <div class="content-header">
-                <h1>预约管理<small>检查项管理</small></h1>
+                <h1>系统管理<small>权限管理</small></h1>
                 <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
                     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                    <el-breadcrumb-item>预约管理</el-breadcrumb-item>
-                    <el-breadcrumb-item>检查项管理</el-breadcrumb-item>
+                    <el-breadcrumb-item>系统管理</el-breadcrumb-item>
+                    <el-breadcrumb-item>权限管理</el-breadcrumb-item>
                 </el-breadcrumb>
             </div>
             <div class="app-container">
@@ -32,15 +32,9 @@
                     </div>
                     <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
                         <el-table-column type="index" align="center" label="序号"></el-table-column>
-                        <el-table-column prop="code" label="项目编码" align="center"></el-table-column>
-                        <el-table-column prop="name" label="项目名称" align="center"></el-table-column>
-                        <el-table-column label="适用性别" align="center">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.sex == '0' ? '不限' : scope.row.sex == '1' ? '男' : '女'}}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="age" label="适用年龄" align="center"></el-table-column>
-                        <el-table-column prop="remark" label="项目说明" align="center"></el-table-column>
+                        <el-table-column prop="name" label="权限名称" align="center"></el-table-column>
+                        <el-table-column prop="keyword" label="权限关键词" align="center"></el-table-column>
+                        <el-table-column prop="description" label="权限描述" align="center"></el-table-column>
                         <el-table-column label="操作" align="center">
 <!--        单元格 显示内容的格式化，定制展示的效果  scope.row 行数据                  -->
                             <template slot-scope="scope">
@@ -78,58 +72,20 @@ total:总记录数
                             <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
                                 <el-row>
                                     <el-col :span="12">
-                                        <el-form-item label="项目编码" prop="code">
-                                            <el-input v-model="formData.code"/>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="项目名称" prop="name">
+                                        <el-form-item label="权限名" prop="name">
                                             <el-input v-model="formData.name"/>
                                         </el-form-item>
                                     </el-col>
-                                </el-row>
-                                <el-row>
                                     <el-col :span="12">
-                                        <el-form-item label="性别">
-                                            <el-select v-model="formData.sex">
-                                                <el-option label="不限" value="0"></el-option>
-                                                <el-option label="男" value="1"></el-option>
-                                                <el-option label="女" value="2"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="适用年龄">
-                                            <el-input v-model="formData.age"/>
-                                        </el-form-item>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="12">
-                                        <el-form-item label="类型">
-                                            <el-select v-model="formData.type">
-                                                <el-option label="检查" value="1"></el-option>
-                                                <el-option label="检验" value="2"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="价格">
-                                            <el-input v-model="formData.price"/>
+                                        <el-form-item label="权限关键词" prop="keyword">
+                                            <el-input v-model="formData.keyword"/>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
                                 <el-row>
                                     <el-col :span="24">
-                                        <el-form-item label="项目说明">
-                                            <el-input v-model="formData.remark" type="textarea"></el-input>
-                                        </el-form-item>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="24">
-                                        <el-form-item label="注意事项">
-                                            <el-input v-model="formData.attention" type="textarea"></el-input>
+                                        <el-form-item label="权限描述">
+                                            <el-input v-model="formData.description" type="textarea"></el-input>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
@@ -147,58 +103,20 @@ total:总记录数
                             <el-form ref="dataEditForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
                                 <el-row>
                                     <el-col :span="12">
-                                        <el-form-item label="项目编码" prop="code">
-                                            <el-input v-model="formData.code"/>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="项目名称" prop="name">
+                                        <el-form-item label="权限名" prop="name">
                                             <el-input v-model="formData.name"/>
                                         </el-form-item>
                                     </el-col>
-                                </el-row>
-                                <el-row>
                                     <el-col :span="12">
-                                        <el-form-item label="性别">
-                                            <el-select v-model="formData.sex">
-                                                <el-option label="不限" value="0"></el-option>
-                                                <el-option label="男" value="1"></el-option>
-                                                <el-option label="女" value="2"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="适用年龄">
-                                            <el-input v-model="formData.age"/>
-                                        </el-form-item>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="12">
-                                        <el-form-item label="类型">
-                                            <el-select v-model="formData.type">
-                                                <el-option label="检查" value="1"></el-option>
-                                                <el-option label="检验" value="2"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="12">
-                                        <el-form-item label="价格">
-                                            <el-input v-model="formData.price"/>
+                                        <el-form-item label="权限关键词" prop="keyword">
+                                            <el-input v-model="formData.keyword"/>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
                                 <el-row>
                                     <el-col :span="24">
-                                        <el-form-item label="项目说明">
-                                            <el-input v-model="formData.remark" type="textarea"></el-input>
-                                        </el-form-item>
-                                    </el-col>
-                                </el-row>
-                                <el-row>
-                                    <el-col :span="24">
-                                        <el-form-item label="注意事项">
-                                            <el-input v-model="formData.attention" type="textarea"></el-input>
+                                        <el-form-item label="权限描述">
+                                            <el-input v-model="formData.description" type="textarea"></el-input>
                                         </el-form-item>
                                     </el-col>
                                 </el-row>
@@ -234,8 +152,8 @@ total:总记录数
                 dialogFormVisible: false,//增加表单是否可见
                 dialogFormVisible4Edit: false,//编辑表单是否可见
                 rules: {//校验规则
-                    code: [{ required: true, message: '项目编码为必填项', trigger: 'blur' }],
-                    name: [{ required: true, message: '项目名称为必填项', trigger: 'blur' }]
+                    code: [{ required: true, message: '权限关键词为必填项', trigger: 'blur' }],
+                    name: [{ required: true, message: '权限名为必填项', trigger: 'blur' }]
                 }
             },
             //钩子函数，VUE对象初始化完成后自动执行
@@ -253,7 +171,7 @@ total:总记录数
                     this.$refs['dataEditForm'].validate((valid) => {
                         if (valid) {
                             // 校验通过  修改的提交
-                            axios.post('/checkitem/update.do',this.formData).then(res => {
+                            axios.post('/permission/update.do',this.formData).then(res => {
                                 this.$message({
                                     message: res.data.message,
                                     type: res.data.flag?"success":"error"
@@ -274,7 +192,7 @@ total:总记录数
                     this.$refs['dataAddForm'].validate((valid) => {
                         if (valid) {
                             // 校验通过 this.formData body  http协议
-                            axios.post('/checkitem/add.do',this.formData).then(res => {
+                            axios.post('/permission/add.do',this.formData).then(res => {
                                 this.$message({
                                     message: res.data.message,
                                     type: res.data.flag?"success":"error"
@@ -303,7 +221,7 @@ total:总记录数
                     })*/
                     // 分页查询
                     // 为什么使用post请求，参数可以随意，get url的长度受限,参数会暴露到url中，参数是&拼接的，不能使用json对象来提交
-                    axios.post('/checkitem/findPage.do',this.pagination).then(res => {
+                    axios.post('/permission/findPage.do',this.pagination).then(res => {
                         //alert(内容)
                         //this.$message({
                         //    // message显示的提示内容
@@ -353,7 +271,7 @@ total:总记录数
                     // 获取编辑检查项的id
                     var id = row.id;
                     // 提交请求，通过id查询检查项
-                    axios.get('/checkitem/findById.do?id=' + id).then(res => {
+                    axios.get('/permission/findById.do?id=' + id).then(res => {
                         this.$message({
                             message: res.data.message,
                             type: res.data.flag?"success":"error"
@@ -382,7 +300,7 @@ total:总记录数
                         type: 'warning'
                     }).then(() => {
                         // 点击确定时调用
-                        axios.post('/checkitem/deleteById.do?id=' + id).then(res => {
+                        axios.post('/permission/deleteById.do?id=' + id).then(res => {
                             this.$message({
                                 message: res.data.message,
                                 type: res.data.flag?"success":"error"
