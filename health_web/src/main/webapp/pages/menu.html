@@ -61,7 +61,7 @@
                      :data="items"
                      node-key="id"
                      :expand-on-click-node="false"
-                     @check-change="checkChange"
+                     @check-change="handleCheckChange"
                      show-checkbox><span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>{{ node.label }}</span>
                 <span>
@@ -250,7 +250,7 @@
                 },
                 items: [],
                 loading: true,
-                selecte: {},
+                selected: {},
                 childrenIds:[],
                 count: 1,
                 dialogFormVisible:false,
@@ -304,9 +304,9 @@
                     }
                 })
             },
-            checkChange(data, checked, indeterminate) {
+            handleCheckChange(data, checked, indeterminate) {
                 // 实现单选
-                console.log(data);
+                // console.log(data);
                 if(checked){
                     // 当前点击为选择状态而不是取消选择
                     this.selected = data;
