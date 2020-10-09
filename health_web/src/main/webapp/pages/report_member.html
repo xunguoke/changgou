@@ -1,290 +1,131 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <!-- 页面meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>传智健康</title>
-    <meta name="description" content="传智健康">
-    <meta name="keywords" content="传智健康">
-    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
-    <!-- 引入样式 -->
-    <link rel="stylesheet" href="../plugins/elementui/index.css">
-    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <head>
+        <!-- 页面meta -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>传智健康</title>
+        <meta name="description" content="传智健康">
+        <meta name="keywords" content="传智健康">
+        <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+        <!-- 引入样式 -->
+        <link rel="stylesheet" href="../plugins/elementui/index.css">
+        <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="../css/style.css">
+        <!-- 引入组件库 -->
+        <script type="text/javascript" src="../js/jquery.min.js"></script>
+        <script src="../js/vue.js"></script>
+        <script src="../plugins/elementui/index.js"></script>
+        <script src="../js/axios-0.18.0.js"></script>
+        <script src="../plugins/echarts.js"></script>
+        <style>
+            .el-date-editor--month:first-child {
+                margin-left: 60%;
+                margin-top: 5px;
+            }
+        </style>
 
-</head>
-<body class="hold-transition">
-<div id="app">
-    <div class="content-header">
-        <h1>统计分析<small>会员数量</small></h1>
-        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
-            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>统计分析</el-breadcrumb-item>
-            <el-breadcrumb-item>会员数量</el-breadcrumb-item>
-        </el-breadcrumb>
-    </div>
-    <div class="app-container">
-        <div class="box">
-            <div class="filter-container">
-                <el-input placeholder="用户名/电话" v-model="pagination.queryString" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"></el-input>
-                <el-button @click="handleCurrentChange(1)" class="dalfBut">查询</el-button>
-                <el-button type="primary" class="butT" @click="handleCreate()">新建</el-button>
+    </head>
+    <body class="hold-transition">
+        <div id="app">
+            <div class="content-header">
+                <h1>统计分析<small>会员数量</small></h1>
+                <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+                    <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                    <el-breadcrumb-item>统计分析</el-breadcrumb-item>
+                    <el-breadcrumb-item>会员数量</el-breadcrumb-item>
+                </el-breadcrumb>
             </div>
-            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-            <div id="chart1" style="height:600px;"></div>
+            <div class="app-container">
+                <div class="box">
+                    <span>选择日期</span>
+                    <el-date-picker
+                            v-model="startMonth"
+                            type="month"
+                            @blur="changeMonth()"
+                            value-format="yyyy-MM"
+                            placeholder="起始月份">
+                    </el-date-picker>
+                    <el-date-picker
+                            v-model="endMonth"
+                            type="month"
+                            value-format="yyyy-MM"
+                            @blur="changeMonth()"
+                            placeholder="结束月份">
+                    </el-date-picker>
 
-            <!--新增table容器-->
-            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
-                <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
-                <!--<el-table-column prop="password" label="密码" align="center"></el-table-column>-->
-                <el-table-column prop="remark" label="说明" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
-                    <template slot-scope="scope">
-                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
-                    </template>
-                </el-table-column>
-
-            </el-table>
-
-            <!--新增碳层-->
-            <div class="add-form">
-                <el-dialog title="新增用户" :visible.sync="dialogFormVisible">
-                    <div class="block">
-                        <span class="demonstration">默认</span>
-                        <el-date-picker
-                                v-model="value1"
-                                type="monthrange"
-                                range-separator="至"
-                                start-placeholder="开始月份"
-                                end-placeholder="结束月份">
-                        </el-date-picker>
-                    </div>
-                    <div slot="footer" class="dialog-footer">
-                        <el-button @click="dialogFormVisible = false">取消</el-button>
-                        <el-button type="primary" @click="handleAdd()">确定</el-button>
-                    </div>
-                </el-dialog>
+                    <!--{{startMonth}}{{endMonth}}-->
+                    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+                    <div id="chart1" style="height:600px;"></div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</body>
-<!-- 引入组件库 -->
-<script src="../js/vue.js"></script>
-<script src="../js/axios-0.18.0.js"></script>
-<!--新增组件-->
-<script src="../plugins/echarts.js"></script>
-<script src="../plugins/elementui/index.js"></script>
-<script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
-    var myChart1 = echarts.init(document.getElementById('chart1'));
-
-    // 使用刚指定的配置项和数据显示图表。
-    //myChart.setOption(option);
-    /*新增vue变量*/
-    var vue = new Vue({
-        el: '#app',
-        data:{
-            activeName:'first',//添加/编辑窗口Tab标签名称
-            pagination: {//分页相关属性
-                currentPage: 1,
-                pageSize:10,
-                total:100,
-                queryString:null,
+    </body>
+    <!-- 引入组件库 -->
+    <script>
+        var vue = new Vue({
+            el: "#app",
+            data: {
+                startMonth: "",
+                endMonth: ""
             },
-            dataList: [],//列表数据
-            formData: {},//表单数据
-            tableData:[],//新增和编辑表单中对应的检查项列表数据
-            roleIds:[],//新增和编辑表单中检查项对应的复选框，基于双向绑定可以进行回显和数据提交。选中的检查项id集合
-            dialogFormVisible: false,//控制添加窗口显示/隐藏
-            dialogFormVisible4Edit:false,//控制编辑窗口显示/隐藏
-            pickerOptions: {
-                shortcuts: [{
-                    text: '本月',
-                    onClick(picker) {
-                        picker.$emit('pick', [new Date(), new Date()]);
-                    }
-                }, {
-                    text: '今年至今',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date(new Date().getFullYear(), 0);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近六个月',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date();
-                        start.setMonth(start.getMonth() - 6);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }]
+            mounted() {
+                this.showMemberReport();
             },
-            value1: ''
-        },
-        created() {
-            this.findPage();
-        },
-        methods: {
-            //编辑 TODO
-            handleEdit() {
-                // 提交数据，formData checkgroup, roleIds
-                axios.post('/user/update.do?roleIds=' + this.roleIds, this.formData).then(res => {
-                    this.$message({
-                        message: res.data.message,
-                        type: res.data.flag?"success":"error"
-                    });
-                    if(res.data.flag){
-                        // 成功则要关闭编辑窗口
-                        this.dialogFormVisible4Edit = false;
-                        // 刷新列表数据
-                        this.findPage();
+            methods: {
+                changeMonth() {
+                    // TODO 校验所选的月份是一年以内
+                    if (this.startMonth == null || this.startMonth == "") {
+                        this.$message.warning("起始日期不能为空");
+                        return;
                     }
-                });
-            },
-            //添加 TODO
-            handleAdd () {
-                // 提交数据，formData checkgroup, roleIds
-                axios.post('/user/add.do?roleIds=' + this.roleIds, this.formData).then(res => {
-                    this.$message({
-                        message: res.data.message,
-                        type: res.data.flag?"success":"error"
-                    });
-                    if(res.data.flag){
-                        // 成功则要关闭新增窗口
-                        this.dialogFormVisible = false;
-                        // 刷新列表数据
-                        this.findPage();
+                    if (this.endMonth == null || this.endMonth == "") {
+                        this.$message.warning("结束日期不能为空");
+                        return;
                     }
-                });
-            },
-            //分页查询 TODO 1.先做这个findPage
-            findPage() {
-                axios.post('/user/findPage.do',this.pagination).then(res => {
-                    if(res.data.flag){
-                        // 成功，则绑定列表数据
-                        this.dataList = res.data.data.rows;
-                        // 总记录数
-                        this.pagination.total = res.data.data.total;
-                    }else{
-                        this.$message.error(res.data.message);
-                    }
-                })
-            },
-            // 重置表单
-            resetForm() {
-                this.activeName='first';
-                this.formData = {};
-                this.tableData = [];
-                this.roleIds=[];
-            },
-            // 弹出添加窗口 TODO
-            handleCreate() {
-                // 重置表单
-                this.resetForm();
-                //弹出添加窗口
-                this.dialogFormVisible = true;
-                // 加载检查项列表数据
-                axios.get('/role/findAll.do').then(res => {
-                    if(res.data.flag){
-                        // 绑定角色列表数据
-                        this.tableData = res.data.data;
-                    }else{
-                        this.$message.error(res.data.message);
-                    }
-                })
-            },
-            // 弹出编辑窗口 TODO
-            handleUpdate(row) {
-                this.resetForm();
-                this.dialogFormVisible4Edit = true;
-                var id = row.id;
-                axios.get('/user/findById.do?id=' + id).then(res => {
-                    if(res.data.flag){
-                        // 回显绑定
-                        this.formData = res.data.data;
-                        // 先有角色列表
-                        axios.get('/role/findAll.do').then(res1 => {
-                            if(res1.data.flag){
-                                this.tableData = res1.data.data;
-                                // 有检查项列表数据，钩选问题，获取属于这个检查组的检查项id集合
-                                axios.get('/user/findRoleIdsByUserId.do?id=' + id).then(res2 => {
-                                    if(res2.data.flag){
-                                        // 钩选
-                                        this.roleIds = res2.data.data;
-                                    }else{
-                                        this.$message.error(res2.data.message);
-                                    }
-                                })
-                            }else{
-                                this.$message.error(res1.data.message);
+                    axios.get("/report/getMemberReportByMonthRange.do?startMonth=" + this.startMonth + "&endMonth=" + this.endMonth)
+                        .then(res => {
+                            if (res.data.flag) {
+                                this.setOption(res);
+                            } else {
+                                this.$message.warning(res.data.message);
                             }
-                        })
-                    }else{
-                        this.$message.error(res.data.message);
-                    }
-                });
-
-            },
-            //切换页码
-            handleCurrentChange(currentPage) {
-                this.pagination.currentPage = currentPage;
-                this.findPage();
-            },
-            // 删除 TODO
-            handleDelete(row) {
-                // 检查组id
-                var id = row.id;
-                this.$confirm('此操作将【永久删除】该检查组, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    // 点击确定时调用
-                    axios.post('/user/deleteById.do?id=' + id).then(res => {
-                        this.$message({
-                            message: res.data.message,
-                            type: res.data.flag?"success":"error"
                         });
-                        if(res.data.flag){
-                            // 成功则刷新列表数据
-                            this.findPage();
-                        }
-                    })
-                }).catch(() => {
-                });
+                },
+                // 设置折线图数据
+                setOption(res) {
+                    var myChart1 = echarts.init(document.getElementById('chart1'));
+                    myChart1.setOption(
+                        {
+                            title: {
+                                text: '会员数量'
+                            },
+                            tooltip: {},
+                            legend: {
+                                data: ['会员数量']
+                            },
+                            xAxis: {
+                                data: res.data.data.months
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                name: '会员数量',
+                                type: 'line',
+                                data: res.data.data.memberCount
+                            }]
+                        });
+                    this.startMonth = res.data.data.months[0];
+                    this.endMonth = res.data.data.months[res.data.data.months.length - 1];
+                },
+                // 初始化折线图.默认展示当前月份前12个月的数据
+                showMemberReport() {
+                    axios.get("/report/getMemberReport.do").then((res) => {
+                        this.setOption(res);
+                    });
+                },
             }
-        }
-    })
-
-    axios.get("/report/getMemberReport.do").then((res) => {
-        alert(res.data.message);
-        if (res.data.flag) {
-            myChart1.setOption(
-                {
-                    title: {
-                        text: '会员数量'
-                    },
-                    tooltip: {},
-                    legend: {
-                        data: ['会员数量']
-                    },
-                    xAxis: {
-                        data: res.data.data.months
-                    },
-                    yAxis: {
-                        type: 'value'
-                    },
-                    series: [{
-                        name: '会员数量',
-                        type: 'line',
-                        data: res.data.data.memberCount
-                    }]
-                });
-        }
-    });
-</script>
+        });
+    </script>
 </html>
