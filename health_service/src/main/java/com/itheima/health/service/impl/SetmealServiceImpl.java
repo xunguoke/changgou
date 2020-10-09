@@ -1,19 +1,27 @@
 package com.itheima.health.service.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.itheima.health.HealthException;
+import com.itheima.health.constant.RedisMessageConstant;
 import com.itheima.health.dao.SetmealDao;
 import com.itheima.health.entity.PageResult;
 import com.itheima.health.entity.QueryPageBean;
+import com.itheima.health.entity.Result;
 import com.itheima.health.pojo.CheckGroup;
 import com.itheima.health.pojo.CheckItem;
 import com.itheima.health.pojo.Setmeal;
 import com.itheima.health.service.SetmealService;
+import com.qiniu.util.Json;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +33,13 @@ import java.util.Map;
 @Service(interfaceClass = SetmealService.class)
 public class SetmealServiceImpl implements SetmealService {
 
+    private final static String FINDALLKEY = RedisMessageConstant.SETMEAL_GETLIST + "_" + "findAll";
+
     @Autowired
     private SetmealDao setmealDao;
+
+    @Autowired
+    private JedisPool jedisPool;
 
     /**
      * 添加套餐
@@ -36,6 +49,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public Integer add(Setmeal setmeal, Integer[] checkgroupIds) {
+        deleteFindAllFromRedis();
         // 先添加套餐
         setmealDao.add(setmeal);
         // 获取新增的套餐的id
@@ -47,6 +61,7 @@ public class SetmealServiceImpl implements SetmealService {
                 setmealDao.addSetmealCheckgroup(setmealId,checkgroupId);
             }
         }
+
         return setmealId;
     }
 
@@ -77,6 +92,7 @@ public class SetmealServiceImpl implements SetmealService {
         return setmealDao.findById(id);
     }
 
+
     /**
      * 查询选中的检查组id集合
      * @param id
@@ -95,6 +111,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public void update(Setmeal setmeal, Integer[] checkgroupIds) {
+        deleteFindAllFromRedis();
         // 先更新套餐
         setmealDao.update(setmeal);
         // 删除旧关系
@@ -115,6 +132,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public void deleteById(int id) throws HealthException {
+        deleteFindAllFromRedis();
         // 判断 是否被订单使用
         int count = setmealDao.findCountBySetmealId(id);
         // 使用了则报错
@@ -143,7 +161,19 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public List<Setmeal> findAll() {
-        return setmealDao.findAll();
+        //做一个key，在redis查询，查到就转list，查不到就去数据库查
+        Jedis jedis = jedisPool.getResource();
+        String JSONList = jedis.get(FINDALLKEY);
+        List<Setmeal> setmealList = null;
+        if (StringUtils.isEmpty(JSONList)) {
+            setmealList = setmealDao.findAll();
+            String List2JSONString = JSON.toJSONString(setmealList);
+            jedis.set(FINDALLKEY,List2JSONString);
+            return setmealList;
+        }
+
+        List<Setmeal> JSON2List = JSON.parseArray(JSONList,Setmeal.class);
+        return JSON2List;
     }
 
     /**
@@ -153,7 +183,22 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public Setmeal findDetailById(int id) {
-        return setmealDao.findDetailById(id);
+
+
+        //做一个key，在redis查询，查到就转对象，查不到就去数据库查
+        String key = RedisMessageConstant.MEALDETAIL + "_" + "findDetail"+ id;
+        Jedis jedis = jedisPool.getResource();
+        String ss = jedis.get(key);
+        if (StringUtils.isEmpty(ss)) {
+            Setmeal setmeal = setmealDao.findDetailById(id);
+            String setmealJSON = JSON.toJSONString(setmeal);
+            jedis.set(key,setmealJSON);
+            return setmeal;
+        }
+
+        Setmeal JSON2setmeal = JSON.parseObject(ss, Setmeal.class);
+
+        return JSON2setmeal;
     }
 
     @Override
@@ -185,4 +230,11 @@ public class SetmealServiceImpl implements SetmealService {
     public List<Map<String, Object>> getSetmealReport() {
         return setmealDao.getSetmealReport();
     }
+
+    @Test
+    public void deleteFindAllFromRedis(){
+        Jedis jedis = jedisPool.getResource();
+        jedis.del(FINDALLKEY);
+    }
+
 }

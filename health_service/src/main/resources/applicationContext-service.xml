@@ -13,4 +13,5 @@
     <dubbo:annotation package="com.itheima.health.service"/>
 
     <import resource="classpath:applicationContext-tx.xml"/>
+    <import resource="classpath:spring-redis.xml"/>
 </beans>
