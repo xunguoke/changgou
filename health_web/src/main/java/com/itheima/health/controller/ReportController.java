@@ -96,6 +96,42 @@ public class ReportController {
         return new Result(false, MessageConstant.GET_MEMBER_NUMBER_REPORT_FAIL);
     }
 
+    @GetMapping("/getMemberSexReport")
+    public Result getMemberSexReport(){
+        // 统计人数和
+        List<Map<String,Object>> reportData = memberService.getMemberSexCount();
+        Map<String,Object> resultMap = new HashMap<>();
+        // 抽取
+        List<String> memberSex = new ArrayList<>();
+        if(null != reportData && reportData.size() > 0){
+            for (Map<String, Object> data : reportData) {
+                // 提取
+                memberSex.add((String)data.get("name"));
+            }
+        }
+        resultMap.put("memberSex",memberSex);
+        resultMap.put("memberCount",reportData);
+        return new Result(true, "性别呀~",resultMap);
+    }
+
+    @GetMapping("/getMemberAgeReport")
+    public Result getMemberAgeReport(){
+        // 统计人数和
+        List<Map<String,Object>> reportData = memberService.getMemberAgeCount();
+        Map<String,Object> resultMap = new HashMap<>();
+        // 抽取
+        List<String> membersSex = new ArrayList<>();
+        if(null != reportData && reportData.size() > 0){
+            for (Map<String, Object> data : reportData) {
+                // 提取
+                membersSex.add((String)data.get("name"));
+            }
+        }
+        resultMap.put("memberAge",membersSex);
+        resultMap.put("memberCount",reportData);
+        return new Result(true, "年龄吖~",resultMap);
+    }
+
     /**
      * 套餐预约占比
      * @return

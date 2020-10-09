@@ -95,4 +95,24 @@
     <select id="findMemberTotalCount" resultType="int">
         select count(id) from t_member
     </select>
+
+    <select id="getMemberSexCount" resultType="map">
+        select (CASE
+                    WHEN s.sex IS NULL THEN '未填写'
+                    WHEN s.sex=1 THEN '男'
+                    WHEN s.sex=2 THEN '女'
+            END) as name, count(1) value from t_member s GROUP BY sex
+    </select>
+
+    <select id="getMemberAgeCount" resultType="map">
+        SELECT (CASE
+                    WHEN a.age IS NULL THEN 'unknown'
+                    WHEN a.age BETWEEN 0 AND 18 THEN '0-18岁'
+                    WHEN a.age BETWEEN 18 AND 30 THEN '18-30岁'
+                    WHEN a.age > 30 THEN '30岁以上'
+            END) as name,
+               COUNT(*) 'value'
+        FROM (SELECT NOW() AS "时间" , birthday , TIMESTAMPDIFF ( YEAR,birthday , CURDATE() ) AS age FROM t_member)a
+        GROUP BY name
+    </select>
 </mapper>

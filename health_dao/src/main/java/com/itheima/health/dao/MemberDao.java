@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.itheima.health.pojo.Member;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberDao {
     /**
@@ -77,4 +78,8 @@ public interface MemberDao {
      * @return
      */
     Integer findMemberTotalCount();
+
+    List<Map<String, Object>> getMemberSexCount();
+
+    List<Map<String, Object>> getMemberAgeCount();
 }
