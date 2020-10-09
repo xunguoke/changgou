@@ -8,7 +8,7 @@
         <property name="username" value="root" />
         <property name="password" value="root" />
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:3306/itheima_health" />
+        <property name="url" value="jdbc:mysql://localhost:3306/healthdb" />
     </bean>
     <!--spring和mybatis整合的工厂bean-->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -16,7 +16,7 @@
         <!--    引入mybatis的配置文件     -->
         <property name="configLocation" value="classpath:sqlMapConfig.xml" />
         <!--使用别名-->
-        <property name="typeAliasesPackage" value="com.itheima.health.pojo"></property>
+        <property name="typeAliasesPackage" value="com.itheima.health.pojo"/>
     </bean>
     <!--批量扫描接口生成代理对象-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">

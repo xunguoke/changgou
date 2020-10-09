@@ -86,7 +86,7 @@
         },
         mounted(){
             // 查询套餐详情
-            axios.get("/setmeal/findDetailById3.do?id=" + id).then((res) => {
+            axios.get("/setmeal/findDetailById.do?id=" + id).then((res) => {
                 if(res.data.flag){
                     this.setmeal = res.data.data;
                 }else{

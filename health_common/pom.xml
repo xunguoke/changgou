@@ -12,6 +12,10 @@
     <artifactId>health_common</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
         <!-- 导入iText报表 -->
         <dependency>
             <groupId>com.lowagie</groupId>
@@ -22,10 +26,10 @@
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-asian</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.alpha</groupId>
-            <artifactId>itextasian</artifactId>
-            <version>1.0.0</version>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.pagehelper</groupId>
@@ -104,10 +108,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>

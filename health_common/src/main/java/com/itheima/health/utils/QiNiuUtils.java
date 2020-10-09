@@ -18,10 +18,10 @@ import java.util.List;
 
 public class QiNiuUtils {
 
-    private static final String ACCESSKEY = "SFEru-42dYFEvmHot4dz1UhsepDmOPDql0AfFt8p";
-    private static final String SECRETKEY = "aCzett8JLbldF42PhQGzw6ymQyWreY4Fu8drPKG3";
-    private static final String BUCKET = "hm100";
-    public static final String DOMAIN= "http://qgzntdql7.hn-bkt.clouddn.com/";
+    private static final String ACCESSKEY = "T0RreqORbodrxJBESH-8Z2rMjb2VlflStOaowm3o";
+    private static final String SECRETKEY = "lnlZrwRt2ouHIzhQxR2Bqr1GotbHlllqCcemnhb0";
+    private static final String BUCKET = "yeshenyeshen";
+    public static final String DOMAIN= "http://qh56uzj92.hn-bkt.clouddn.com/";
 
     public static void main(String[] args) {
         //uploadFile("C:\\Users\\Eric\\Desktop\\file\\timg.jpg","dd2.jpg");
