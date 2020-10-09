@@ -11,6 +11,8 @@ import com.itheima.health.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @Author: ZhangYongLiang
  * @Date: 2020/10/7 23:17
@@ -54,7 +56,14 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public void deleteById(Integer id) {
-        permissionDao.deleteById(id);
+    public boolean deleteById(Integer id) {
+        // 查询权限是否被使用
+        List<Integer> roleIds = permissionDao.getRoleById(id);
+        if (roleIds == null||roleIds.size()==0) {
+            permissionDao.deleteById(id);
+            return true;
+        }else {
+            return false;
+        }
     }
 }

@@ -44,8 +44,8 @@ public class PermissionController {
 
     @PostMapping("/deleteById")
     public Result deleteById(Integer id) {
-        permissionService.deleteById(id);
-        return new Result(true,"成功删除权限");
+        boolean flag = permissionService.deleteById(id);
+        return new Result(flag,flag?"成功删除权限":"不能删除权限，已被用户使用");
     }
 
 }

@@ -28,4 +28,8 @@
     <update id="deleteById" parameterType="Integer">
         delete from t_permission where id=#{id}
     </update>
+
+    <select id="getRoleById" resultMap="Integer">
+        select role_id from t_role_permission where permission_id=#{id}
+    </select>
 </mapper>

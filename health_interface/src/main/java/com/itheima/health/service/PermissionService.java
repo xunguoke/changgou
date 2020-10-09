@@ -18,5 +18,5 @@ public interface PermissionService {
 
     void update(Permission permission);
 
-    void deleteById(Integer id);
+    boolean deleteById(Integer id);
 }
