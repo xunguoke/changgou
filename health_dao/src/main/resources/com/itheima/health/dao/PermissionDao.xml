@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itheima.health.dao.PermissionDao">
+    <select id="findByCondition" parameterType="string" resultType="Permission">
+        select * from t_permission
+        <where>
+            <if test="value != null and value.length > 0">
+                keyword like #{queryString} or name like #{queryString}
+            </if>
+        </where>
+    </select>
+
+    <insert id="add" parameterType="permission">
+        insert into t_permission(id, name, keyword, description) VALUES (null,#{name},#{keyword},#{description})
+    </insert>
+
+    <select id="findById" parameterType="Integer" resultType="Permission">
+        select * from t_permission where id=#{id}
+    </select>
+
+    <update id="update" parameterType="Permission">
+        update t_permission set name=#{name},keyword=#{keyword},description=#{description} where id=#{id}
+    </update>
+
+    <update id="deleteById" parameterType="Integer">
+        delete from t_permission where id=#{id}
+    </update>
+
+    <select id="getRoleById" resultType="Integer">
+        select role_id from t_role_permission where permission_id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.health.dao.MenuDao">
+   <select id="getAllMenu" resultMap="MenuMap">
+       select m1.id,m1.path,m1.name,m1.icon,m2.id cid,m2.path cPath,m2.name cName,m2.linkUrl
+       from
+               (SELECT * from t_menu where level=1 ORDER BY path) m1,
+               (SELECT * from t_menu where level=2 order by path) m2
+       where m1.id=m2.parentMenuId
+   </select>
+
+    <select id="getMenuByUsername" resultMap="MenuMap">
+       select m1.id,m1.path,m1.name,m1.icon,m2.id cid,m2.path cPath,m2.name cName,m2.linkUrl
+       from
+           t_user_role ur,t_role r,t_role_menu rm,
+           (SELECT * from t_menu where level=1 and name!='未分配菜单' ORDER BY path) m1,
+           (SELECT * from t_menu where level=2 order by path) m2,
+           (select id from t_user where username=#{username}) u
+       where u.id=ur.user_id and ur.role_id=r.id and r.id=rm.role_id and m1.id=m2.parentMenuId and rm.menu_id=m1.id
+   </select>
+   <resultMap id="MenuMap" type="Menu">
+        <id property="id" column="id"/>
+       <result property="name" column="name"/>
+        <result property="path" column="path"/>
+        <result property="icon" column="icon"/>
+        <collection property="children" ofType="Menu">
+            <id property="id" column="cid"/>
+            <result property="path" column="cPath"/>
+            <result property="name" column="cName"/>
+            <result property="linkUrl" column="linkUrl"/>
+        </collection>
+   </resultMap>
+
+    <select id="getParentMenuID" resultType="Map">
+        SELECT name,id parentMenuId from t_menu where level=1
+    </select>
+
+    <select id="getParentMenuTotal" resultType="int">
+        select count(1) from t_menu where level =1
+    </select>
+
+    <insert id="addParentMenu" parameterType="Map">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_menu(name,path,priority,icon,description,level)
+        values(#{name},#{path},#{priority},#{icon},#{description},#{level})
+    </insert>
+
+    <select id="getChildrenMenuTotal" parameterType="int" resultType="int">
+        select count(1) from t_menu where parentMenuId=#{parentMenuId}
+    </select>
+
+    <select id="getParentMenuPathById" resultType="String">
+        select path from t_menu where id=#{parentMenuId}
+    </select>
+
+    <insert id="addChildrenMenu" parameterType="Map">
+        insert into t_menu(name,linkUrl,path,priority,icon,description,parentMenuId,level)
+        values(#{name},#{linkUrl},#{path},#{priority},#{icon},#{description},#{parentMenuId},#{level})
+    </insert>
+
+    <select id="getMenuPathById" resultType="Map">
+        select * from t_menu where id=#{id}
+    </select>
+
+    <update id="update" parameterType="menu">
+        update t_menu
+        set
+            name=#{name},
+            linkUrl=#{linkUrl},
+            parentMenuId=#{parentMenuId},
+            description=#{description}
+        where
+            id=#{id}
+    </update>
+
+    <!--查询未分配的菜单-->
+    <select id="getChildrenMenus" resultType="menu">
+        select m.* from t_menu m,(select id from t_menu where name='未分配菜单') s where level=2 and parentMenuId=s.id
+    </select>
+
+    <select id="getChildrenMenuByParentMenuId" parameterType="int" resultType="Menu">
+        select * from t_menu where level=2 and parentMenuId=#{id}
+    </select>
+
+    <update id="updateParentMenuId">
+        update t_menu set parentMenuId=#{parentMenuId} where id=#{childrenId}
+    </update>
+
+    <update id="updatePathAndPriority" parameterType="Map">
+        update t_menu set path=#{path},priority=#{priority} where id=#{id}
+    </update>
+
+    <delete id="deleteManagerMenu">
+        DELETE from t_role_menu where role_id=1
+    </delete>
+
+    <select id="getAllMenuId" resultType="Integer">
+        select id from t_menu
+    </select>
+
+    <insert id="addManagerMenu">
+        insert into t_role_menu(role_id, menu_id) VALUES(1,#{id})
+    </insert>
+
+    <select id="getChildrenIds" resultType="Integer">
+        select id from t_menu where parentMenuId=#{id}
+    </select>
+
+    <select id="getEditChildrenMenus" resultType="Menu">
+        select m.* from t_menu m,(select id from t_menu where name='未分配菜单') s where parentMenuId in (#{id},s.id)
+    </select>
+
+    <select id="getMenuByName" resultType="Integer">
+        select id from t_menu where name=#{str}
+    </select>
+
+    <select id="getRoleByMenuId" resultType="Integer">
+        select role_id from t_role_menu where menu_id=#{id}
+    </select>
+
+    <delete id="deleteById" parameterType="int">
+        delete from t_menu where id=#{id}
+    </delete>
+</mapper>

@@ -2,7 +2,11 @@
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset" name="ApplicationContext Dao" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-dao.xml</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
@@ -34,7 +38,11 @@
     <orderEntry type="module-library">
       <library name="Maven: com.alibaba:jconsole:1.8.0">
         <CLASSES>
+<<<<<<< HEAD
           <root url="jar://$MODULE_DIR$/../../../../Environment/Java/jdk1.8.0_261/lib/jconsole.jar!/" />
+=======
+          <root url="jar://$MODULE_DIR$/../../../../Java/jdk1.8.0_261/lib/jconsole.jar!/" />
+>>>>>>> dc0d671af53ff009958e80277b08fae596c2c12e
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -43,7 +51,11 @@
     <orderEntry type="module-library">
       <library name="Maven: com.alibaba:tools:1.8.0">
         <CLASSES>
+<<<<<<< HEAD
           <root url="jar://$MODULE_DIR$/../../../../Environment/Java/jdk1.8.0_261/lib/tools.jar!/" />
+=======
+          <root url="jar://$MODULE_DIR$/../../../../Java/jdk1.8.0_261/lib/tools.jar!/" />
+>>>>>>> dc0d671af53ff009958e80277b08fae596c2c12e
         </CLASSES>
         <JAVADOC />
         <SOURCES />

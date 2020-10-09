@@ -10,7 +10,8 @@
 ### Java template
 # Compiled class file
 *.class
-
+/*/target/*
+/applicationContext-dao.xml
 .idea
 *.iml
 # Log file
