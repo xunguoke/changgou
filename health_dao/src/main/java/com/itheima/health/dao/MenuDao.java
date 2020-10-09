@@ -46,4 +46,12 @@ public interface MenuDao {
     List<Integer> getChildrenIds(Integer id);
 
     List<Menu> getEditChildrenMenus(Integer id);
+
+    Integer getMenuByName(String str);
+
+    List<Integer> getRoleByMenuId(int id);
+
+    void deleteById(int id);
+
+    List<Menu> getAllMenu();
 }

@@ -18,9 +18,13 @@ public interface MenuService {
 
     Map<String, Object> getMenuById(int id);
 
-    void update(Map<String, Object> menu);
+    void update(Map<String, Object> menu, Integer[] childrenIds);
 
     List<Menu> getChildrenMenus();
 
     Map<String, Object> getChildrenIds(Integer id);
+
+    boolean deleteById(int id);
+
+    List<Menu> getAllMenu();
 }

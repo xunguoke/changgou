@@ -63,9 +63,15 @@ public class MenuController {
         return new Result(true,MessageConstant.GET_MENU_SUCCESS,menu);
     }
 
+    @PostMapping("/getAllMenu")
+    public Result getAllMenu() {
+        List<Menu> menuList = menuService.getAllMenu();
+        return new Result(true,"查询菜单成功",menuList);
+    }
+
     /**
-     *
-     * @return
+     * 获取子菜单【新增一级菜单时用】
+     * @return menuList
      */
     @GetMapping("/getChildrenMenus")
     public Result getChildrenMenus() {
@@ -73,21 +79,32 @@ public class MenuController {
         return new Result(true,MessageConstant.GET_MENU_SUCCESS,menuList);
     }
 
+    /**
+     * 编辑菜单
+     * @param menu 编辑时提交的数据
+     * @param childrenIds 二级菜单列表
+     * @return 空
+     */
     @PostMapping("/update")
     public Result update(@RequestBody Map<String, Object> menu,Integer[] childrenIds) {
-        menuService.update(menu);
+        menuService.update(menu,childrenIds);
         return new Result(true,MessageConstant.GET_MENU_SUCCESS);
     }
 
+    /**
+     * 根据id删除
+     * @return 空
+     */
     @PostMapping("/deleteById")
-    public Result deleteById() {
-        return null;
+    public Result deleteById(int id) {
+        boolean flag = menuService.deleteById(id);
+        return new Result(flag,flag?"删除成功":"删除失败");
     }
 
     /**
      * 编辑时二级菜单的回显
-     * @param id
-     * @return
+     * @param id 一级菜单id
+     * @return childrenIds
      */
     @PostMapping("/getChildrenIds")
     public Result getChildrenIds(Integer id) {

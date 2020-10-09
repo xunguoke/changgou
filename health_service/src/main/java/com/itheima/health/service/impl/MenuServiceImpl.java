@@ -12,7 +12,6 @@ import com.itheima.health.pojo.Menu;
 import com.itheima.health.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class MenuServiceImpl implements MenuService {
             }
             // 4.刷新该菜单及其子菜单的path和priority
             updatePathAndPriorityByParentMenuId(id);
-            updateManagerMenu();
+//            updateManagerMenu();
         }else {
             /*
              * 二级菜单
@@ -65,7 +64,7 @@ public class MenuServiceImpl implements MenuService {
             menuDao.addChildrenMenu(menu);
             // 2.刷新path和priority
             updatePathAndPriorityByParentMenuId((int)menu.get("parentMenuId"));
-            updateManagerMenu();
+//            updateManagerMenu();
         }
     }
 
@@ -77,14 +76,46 @@ public class MenuServiceImpl implements MenuService {
     /**
      * 菜单编辑功能
      * @param menu 需要编辑的菜单
+     * @param childrenIds
      */
     @Override
     @Transactional
-    public void update(Map<String, Object> menu) {
-        // 1.
-        menuDao.update(menu);
+    public void update(Map<String, Object> menu, Integer[] childrenIds) {
+        // 1.判断一级菜单or二级菜单
+        String level = (String) menu.get("level");
+        // 获取未分配菜单id
+        String str = "未分配菜单";
+        Integer id = menuDao.getMenuByName(str);
+        // 获取一级菜单id
+        int parentMenuId = (int) menu.get("id");
+        // 获取二级菜单列表
+        List<Menu> menuList = menuDao.getChildrenMenuByParentMenuId(parentMenuId);
+        if (level.equals("1")) {
+            // 1.1 更新一级菜单信息
+            menuDao.update(menu);
+            // 1.2 变更二级菜单
+            // 1.2.1 更新下属所有二级菜单的parentMenuId为未分配
+            for (Menu childrenMenu : menuList) {
+                 Integer childrenMenuId = childrenMenu.getId();
+                menuDao.updateParentMenuId(id,childrenMenuId);
+            }
+            // 1.2.2 更新选中的二级菜单
+            for (Integer childrenId : childrenIds) {
+                menuDao.updateParentMenuId(parentMenuId,childrenId);
+            }
+        }else {
+            // 2.1 更新二级菜单
+            menuDao.update(menu);
+        }
+        // 3.1 刷新path和priority
+        updatePathAndPriorityByParentMenuId(parentMenuId);
+        updatePathAndPriorityByParentMenuId(id);
     }
 
+    /**
+     * 查询未分配的菜单
+     * @return
+     */
     @Override
     public List<Menu> getChildrenMenus() {
         return menuDao.getChildrenMenus();
@@ -108,6 +139,54 @@ public class MenuServiceImpl implements MenuService {
     }
 
     /**
+     * 删除菜单
+     * 【注意事项】删除前需确认该项是否被角色使用
+     * @param id 菜单id
+     */
+    @Override
+    @Transactional
+    public boolean deleteById(int id) {
+        // 1.根据id查询菜单类型
+        Map<String, Object> menuPathById = menuDao.getMenuPathById(id);
+        int level = (int) menuPathById.get("level");
+        // 1.1 查询该项是否被角色使用
+        List<Integer> roleIdList = menuDao.getRoleByMenuId(id);
+        if (roleIdList==null||roleIdList.size()==0) {
+            // 1.1.1 获取未分配菜单的id
+            String str = "未分配菜单";
+            Integer noneId = menuDao.getMenuByName(str);
+            if (level==1) {
+                // 获取二级菜单
+                List<Menu> menuList = menuDao.getChildrenMenuByParentMenuId(id);
+                // 首先抹除二级菜单的parentMenuId
+                // 遍历
+                for (Menu childrenMenu : menuList) {
+                    Integer childrenMenuId = childrenMenu.getId();
+                    menuDao.updateParentMenuId(noneId,childrenMenuId);
+                }
+                // 删除该菜单
+                menuDao.deleteById(id);
+                // 刷新未分配菜单path和priority
+                updatePathAndPriorityByParentMenuId(noneId);
+            }else {
+                // 获取其一级菜单的id
+                int parentMenuId = (int) menuPathById.get("parentMenuId");
+                // 1.1.2 为空则未被占用，执行删除
+                menuDao.deleteById(id);
+                // 刷新当前菜单
+                updatePathAndPriorityByParentMenuId(parentMenuId);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Menu> getAllMenu() {
+        return menuDao.getAllMenu();
+    }
+
+    /**
      * 刷新所有菜单的path和priority
      */
     public void updatePathAndPriority() {
@@ -125,8 +204,17 @@ public class MenuServiceImpl implements MenuService {
         // 1.根据id查询一级菜单，刷新path
         Map<String, Object> menu = menuDao.getMenuPathById(id);
         // 1.1 计算priority (由一级菜单个数去生成优先级,看不懂就去看下数据库就明白了)
-        int priority = menuDao.getParentMenuTotal();
-        menu.put("priority",priority);
+        // 1.1.1 判断该一级菜单是新增还是编辑
+        // 1.1.2 查询该菜单的优先级
+        Map<String, Object> parentMenu = menuDao.getMenuPathById(id);
+        Integer parentMenuPriority = (Integer) parentMenu.get("priority");
+        Integer priority = null;
+        if (parentMenuPriority!=null) {
+            priority = parentMenuPriority;
+        }else {
+            priority = menuDao.getParentMenuTotal();
+            menu.put("priority",priority);
+        }
         // 1.2 计算path
         int path = priority + 1;
         menu.put("path",Integer.toString(path));
@@ -151,16 +239,16 @@ public class MenuServiceImpl implements MenuService {
         }
     }
 
-    @Transactional
-    public void updateManagerMenu() {
-        // 1.删除t_role_menu表中所有role_id=1的数据
-        menuDao.deleteManagerMenu();
-        // 2.查询所有菜单的id
-        List<Integer> idList = menuDao.getAllMenuId();
-        // 3.遍历idList
-        for (Integer menuId : idList) {
-            menuDao.addManagerMenu(menuId);
-        }
-
-    }
+//    @Transactional
+//    public void updateManagerMenu() {
+//        // 1.删除t_role_menu表中所有role_id=1的数据
+//        menuDao.deleteManagerMenu();
+//        // 2.查询所有菜单的id
+//        List<Integer> idList = menuDao.getAllMenuId();
+//        // 3.遍历idList
+//        for (Integer menuId : idList) {
+//            menuDao.addManagerMenu(menuId);
+//        }
+//
+//    }
 }
