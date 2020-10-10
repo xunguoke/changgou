@@ -82,6 +82,7 @@
                 </span>
             </span>
             </el-tree>
+            <!--新增弹层-->
             <div class="add-form">
                 <el-dialog title="新增菜单" :visible.sync="dialogFormVisible">
                     <template>
@@ -158,6 +159,7 @@
                     </div>
                 </el-dialog>
             </div>
+            <!--编辑弹层-->
             <div class="add-form">
                 <el-dialog title="编辑菜单" :visible.sync="dialogFormVisible4Edit">
                     <template>
@@ -202,7 +204,7 @@
                                     </el-row>
                                 </el-form>
                             </el-tab-pane>
-                            <el-tab-pane label="可选二级菜单" name="second">
+                            <el-tab-pane label="可选二级菜单" name="second" v-if="formData.level==1">
                                 <div class="checkScrol">
                                     <table class="datatable">
                                         <thead>
@@ -332,6 +334,7 @@
                 this.getParentMenuId();
                 axios.post('/menu/getMenuById.do?id='+id).then(res=>{
                     if (res.data.flag) {
+                        console.log(1)
                         this.formData=res.data.data;
                         let level = this.formData.level;
                         if (level===1) {
