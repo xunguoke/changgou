@@ -368,7 +368,7 @@
                     //弹出添加窗口
                     this.dialogFormVisible = true;
                     // 加载检查项列表数据
-                    axios.get('/role/findAll.do').then(res => {
+                    axios.get('/role/findAllRole.do').then(res => {
                         if(res.data.flag){
                             // 绑定角色列表数据
                             this.tableData = res.data.data;
@@ -387,7 +387,7 @@
                             // 回显绑定
                             this.formData = res.data.data;
                             // 先有角色列表
-                            axios.get('/role/findAll.do').then(res1 => {
+                            axios.get('/role/findAllRole.do').then(res1 => {
                                 if(res1.data.flag){
                                     this.tableData = res1.data.data;
                                     // 有检查项列表数据，钩选问题，获取属于这个检查组的检查项id集合

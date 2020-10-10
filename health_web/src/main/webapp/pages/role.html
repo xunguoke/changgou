@@ -353,6 +353,7 @@
         },
         created() {
             this.findPage();
+            this.getChildren();
         },
         methods: {
 
@@ -390,7 +391,7 @@
 
             //查询所有菜单项
             getChildren(){
-                axios.post('/role/getMenu.do?username=admin').then(res=>{
+                axios.post('/menu/getAllMenu.do').then(res=>{
                     if (res.data.flag) {
                         this.resetForm();
                         this.items = res.data.data;
@@ -517,7 +518,7 @@
                         })
 
                         //查询所有菜单
-                        axios.post('/role/getMenu.do?username=admin').then(res3=>{
+                        axios.post('/menu/getAllMenu.do').then(res3=>{
                             if (res3.data.flag) {
                                 this.items = res.data.data;
                                 axios.get('/role/getMenuByRoleId.do?id='+id).then(res4=>{
