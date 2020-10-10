@@ -188,7 +188,7 @@
 
                     <!-- 编辑标签弹层 -->
                     <div class="add-form">
-                        <el-dialog title="编辑检查组" :visible.sync="dialogFormVisible4Edit">
+                        <el-dialog title="编辑用户" :visible.sync="dialogFormVisible4Edit">
                             <template>
                                 <el-tabs v-model="activeName" type="card">
                                     <el-tab-pane label="基本信息" name="first">
@@ -215,9 +215,9 @@
                                             <el-row>
                                                 <el-col :span="12">
                                                     <el-form-item label="性别">
-                                                        <el-select v-model="formData.sex">
-                                                            <el-option label="女" value="0"></el-option>
-                                                            <el-option label="男" value="1"></el-option>
+                                                        <el-select v-model="formData.gender">
+                                                            <el-option label="女" value="1"></el-option>
+                                                            <el-option label="男" value="0"></el-option>
                                                         </el-select>
                                                     </el-form-item>
                                                 </el-col>
@@ -227,13 +227,13 @@
                                                     </el-form-item>
                                                 </el-col>
                                             </el-row>
-                                            <!--<el-row>
+                                            <el-row>
                                                 <el-col :span="24">
                                                     <el-form-item label="密码">
                                                         <el-input v-model="formData.password" type="password"></el-input>
                                                     </el-form-item>
                                                 </el-col>
-                                            </el-row>-->
+                                            </el-row>
                                             <el-row>
                                                 <el-col :span="24">
                                                     <el-form-item label="说明">
@@ -368,7 +368,7 @@
                     //弹出添加窗口
                     this.dialogFormVisible = true;
                     // 加载检查项列表数据
-                    axios.get('/role/findAll.do').then(res => {
+                    axios.get('/role/findAllRoles.do').then(res => {
                         if(res.data.flag){
                             // 绑定角色列表数据
                             this.tableData = res.data.data;
@@ -387,7 +387,7 @@
                             // 回显绑定
                             this.formData = res.data.data;
                             // 先有角色列表
-                            axios.get('/role/findAll.do').then(res1 => {
+                            axios.get('/role/findAllRoles.do').then(res1 => {
                                 if(res1.data.flag){
                                     this.tableData = res1.data.data;
                                     // 有检查项列表数据，钩选问题，获取属于这个检查组的检查项id集合

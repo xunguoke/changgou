@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         userDao.add(user);
         // 获取用户id
         Integer userIds = user.getId();
-        // 循环遍历选中角色id，
+        // 循环遍历选中角色id
         if(null != roleIds){
             for (Integer roleId : roleIds) {
                 //添加用户与角色的关系
@@ -111,8 +111,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void update(User user, Integer[] roleIds) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        // 对修改用户的密码加密
-        user.setPassword(encoder.encode(user.getPassword()));
+        //匹配数据库中的密码和修改的密码，查看是否有修改过密码
+        //根据该用户的id查询原密码
+        User sourceUser = findById(user.getId());
+        //将数据库中的密码和前端的密码匹配
+        if(!sourceUser.getPassword().equals(user.getPassword())) {
+            // 对修改用户的密码加密
+            user.setPassword(encoder.encode(user.getPassword()));
+        }
         // 先更新用户信息
         userDao.update(user);
         // 删除旧关系

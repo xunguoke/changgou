@@ -90,7 +90,7 @@
     </select>
 
     <!--不需要判断有没有被其他东西用到-->
-    <resultMap type="com.itheima.health.pojo.User" id="findByIdResultMap">
+    <!--<resultMap type="com.itheima.health.pojo.User" id="findByIdResultMap">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="code" property="code"/>
@@ -102,9 +102,9 @@
                     select="com.itheima.health.dao.CheckItemDao.findCheckItemListById">
         </collection>
     </resultMap>
-    <!--根据套餐id查询检查项信息-->
+    &lt;!&ndash;根据套餐id查询检查项信息&ndash;&gt;
     <select id="findCheckGroupListById" resultMap="findByIdResultMap">
         select * from t_checkgroup  where id
         in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id})
-    </select>
+    </select>-->
 </mapper>
