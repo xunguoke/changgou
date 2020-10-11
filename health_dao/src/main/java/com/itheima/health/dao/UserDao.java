@@ -20,7 +20,6 @@ public interface UserDao {
      */
     User findByUsername(String username);
 
-    /*复制于检查组*/
     /**
      * 添加用户
      * @param user

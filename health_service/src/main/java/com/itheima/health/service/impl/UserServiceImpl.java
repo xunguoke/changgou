@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
         return userDao.findByUsername(username);
     }
 
-    /*复制于检查组*/
     /**
      * 添加用户
      * @param user

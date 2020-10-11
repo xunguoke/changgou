@@ -45,7 +45,6 @@ public class UserController {
         return new Result(false, "用户名或密码不正确");
     }
 
-    /*复制于检查组*/
     /**
      * 添加用户名
      * checkitemIds 与 前端提交的参数名要一致

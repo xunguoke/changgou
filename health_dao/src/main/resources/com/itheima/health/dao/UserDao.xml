@@ -29,7 +29,7 @@
         </collection>
     </resultMap>
 
-    <!--复制于检查组 TODO 密码、生日 -->
+    <!--TODO 密码、生日 -->
     <insert id="add" parameterType="user" >
         <selectKey resultType="int" order="AFTER" keyProperty="id">
             select last_insert_id()
@@ -76,11 +76,6 @@
         delete from t_user_role where user_id=#{id}
     </delete>
 
-    <!--不需要判断有没有被其他东西用到
-    <select id="findSetmealCountByCheckGroupId" parameterType="int" resultType="int">
-        select count(1) from t_setmeal_checkgroup where checkgroup_id=#{id}
-    </select>-->
-
     <delete id="deleteById" parameterType="int">
         delete from t_user where id=#{id}
     </delete>
@@ -89,22 +84,4 @@
         select * from t_user
     </select>
 
-    <!--不需要判断有没有被其他东西用到-->
-    <!--<resultMap type="com.itheima.health.pojo.User" id="findByIdResultMap">
-        <id column="id" property="id"/>
-        <result column="name" property="name"/>
-        <result column="code" property="code"/>
-        <result column="helpCode" property="helpCode"/>
-        <result column="sex" property="sex"/>
-        <result column="remark" property="remark"/>
-        <result column="attention" property="attention"/>
-        <collection property="checkItems" column="id"
-                    select="com.itheima.health.dao.CheckItemDao.findCheckItemListById">
-        </collection>
-    </resultMap>
-    &lt;!&ndash;根据套餐id查询检查项信息&ndash;&gt;
-    <select id="findCheckGroupListById" resultMap="findByIdResultMap">
-        select * from t_checkgroup  where id
-        in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id})
-    </select>-->
 </mapper>

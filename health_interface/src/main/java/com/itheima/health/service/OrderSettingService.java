@@ -11,6 +11,13 @@ import java.util.Map;
  * User: Eric
  */
 public interface OrderSettingService {
+
+    /**
+     *清理历史数据
+     * @param lastDay
+     */
+    void deleteCache(String lastDay);
+
     /**
      * 批量导入预约设置
      * @param list

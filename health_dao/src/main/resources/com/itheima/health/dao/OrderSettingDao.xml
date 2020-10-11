@@ -26,4 +26,9 @@
     <update id="editReservationsByOrderDate" parameterType="OrderSetting" >
         update t_ordersetting set reservations = reservations + 1 where orderDate = #{orderDate} and reservations &lt; number
     </update>
+
+    <!--定时清理数据-->
+    <delete id="deleteCache" parameterType="string">
+       delete from t_ordersetting where orderDate  &lt;= #{lastDay}
+    </delete>
 </mapper>

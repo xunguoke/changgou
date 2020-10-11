@@ -12,6 +12,13 @@ import java.util.Map;
  * User: Eric
  */
 public interface OrderSettingDao {
+
+    /**
+     * 清理历史数据
+     * @param lastDay
+     */
+    void deleteCache(String lastDay);
+
     /**
      * 通过日期查询预约设置信息
      * @param orderDate

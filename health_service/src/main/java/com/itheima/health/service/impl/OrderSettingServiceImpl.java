@@ -22,6 +22,15 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     private OrderSettingDao orderSettingDao;
 
     /**
+     * 清理历史数据
+     * @param lastDay
+     */
+    @Override
+    public void deleteCache(String lastDay) {
+        orderSettingDao.deleteCache(lastDay) ;
+    }
+
+    /**
      * 批量导入预约设置
      * @param list
      */
