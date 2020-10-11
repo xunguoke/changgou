@@ -191,7 +191,7 @@
 
             <!-- 编辑标签弹层 -->
             <div class="add-form">
-                <el-dialog title="编辑检查组" :visible.sync="dialogFormVisible4Edit">
+                <el-dialog title="修改角色信息" :visible.sync="dialogFormVisible4Edit">
                     <template>
                         <el-tabs v-model="activeName" type="card">
                             <el-tab-pane label="基本信息" name="first">
@@ -485,6 +485,8 @@
                 this.resetForm();
                 //弹出编辑窗口
                 this.dialogFormVisible4Edit = true;
+                //加载菜单项列表数据
+                this.getChildren();
                 //获取套餐id
                 var id=row.id;
                 //编辑之前回显角色信息,所有权限项和菜单项
@@ -518,25 +520,14 @@
                         })
 
                         //查询所有菜单
-                        axios.post('/menu/getAllMenu.do').then(res3=>{
-                            if (res3.data.flag) {
-                                this.items = res.data.data;
-                                axios.get('/role/getMenuByRoleId.do?id='+id).then(res4=>{
-                                    if(res4.data.flag){
-                                        //this.items = res.data.data;
-                                        //this.$refs.tree.setCheckedNodes([res.data.data]);
-                                        this.checkedId=res4.data.data;
-                                        console.log("aaaaaa")
-                                        console.log(res.data.data)
-                                    }else{
-                                        //失败返回提示信息
-                                        this.$message.error(res4.data.message);
-                                    }
-                                })
-                                this.loading = false;
+                        axios.get('/role/getMenuByRoleId.do?id='+id).then(res4=>{
+                            if(res4.data.flag){
+                                //this.items = res.data.data;
+                                //this.$refs.tree.setCheckedNodes([res.data.data]);
+                                this.checkedId=res4.data.data;
                             }else{
                                 //失败返回提示信息
-                                this.$message.error(res3.data.message);
+                                this.$message.error(res4.data.message);
                             }
                         })
                     }else{
