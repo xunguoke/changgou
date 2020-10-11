@@ -2,12 +2,113 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!--TODO namespace-->
+<!--mapper映射文件的根标签 namespace:属性，名称空间，写接口的全限定名(对应的接口的全限定名)-->
 <mapper namespace="com.itheima.health.dao.RoleDao">
+    <!--select:用于插叙；id就是接口方法名，resultType:返回值类型，如果是集合就写集合泛型-->
 
-    <!--查询所有角色信息-->
-    <select id="findAllRoles" resultType="Role">
+    <!--分页查询-->
+    <select id="findByCondition" parameterType="String" resultType="com.itheima.health.pojo.Role">
+        select * From t_role
+        <if test="value !=null and value.length > 0">
+            where id like #{value} or name like #{value} or keyword like #{value}
+        </if>
+    </select>
+
+    <!--用户页面查找角色列表-->
+    <select id="findAllRole" resultType="Role">
         select * from t_role
     </select>
 
+    <!--查询所有权限项-->
+    <select id="findAll" resultType="com.itheima.health.pojo.Permission">
+        select * from t_permission
+    </select>
+
+    <!--根据用户名获取菜单-->
+    <select id="getMenuByUsername" resultMap="MenuMap">
+       select m1.id,m1.path,m1.name,m1.icon,m2.id cid,m2.path cPath,m2.name cName,m2.linkUrl
+       from
+           t_user_role ur,t_role r,t_role_menu rm,
+           (SELECT * from t_menu where level=1 and name!='未分配菜单' ORDER BY path) m1,
+           (SELECT * from t_menu where level=2 order by path) m2,
+           (select id from t_user where username=#{username}) u
+       where u.id=ur.user_id and ur.role_id=r.id and r.id=rm.role_id and m1.id=m2.parentMenuId and rm.menu_id=m1.id
+   </select>
+    <resultMap id="MenuMap" type="com.itheima.health.pojo.Menu">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="path" column="path"/>
+        <result property="icon" column="icon"/>
+        <collection property="children" ofType="com.itheima.health.pojo.Menu">
+            <id property="id" column="cid"/>
+            <result property="path" column="cPath"/>
+            <result property="name" column="cName"/>
+            <result property="linkUrl" column="linkUrl"/>
+        </collection>
+    </resultMap>
+
+    <!--新增角色-->
+    <insert id="add" parameterType="com.itheima.health.pojo.Role">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_role (name,keyword,description)
+        values(#{name},#{keyword},#{description})
+    </insert>
+
+    <!--根据角色id和权限id添加到数据库角色权限关系表-->
+    <insert id="addrolepermission" parameterType="int">
+        insert into t_role_permission (role_id,permission_id)
+        values(#{id},#{permissionds})
+    </insert>
+
+    <!--根据角色id和菜单id添加到数据库角色菜单关系表-->
+    <insert id="addrolemenu" parameterType="int">
+        insert into t_role_menu (role_id,menu_id)
+        values(#{id},#{integer})
+    </insert>
+
+    <!--通过角色id查询角色用户关系表中是否有关系数据-->
+    <select id="findUserRole" parameterType="int" resultType="java.lang.Integer">
+        select count(1) from t_user_role where role_id=#{id}
+    </select>
+
+    <!--根据id删除角色权限表-->
+    <delete id="deleteRolePermission" parameterType="int">
+        delete from t_role_permission where role_id=#{id}
+    </delete>
+
+    <!--根据id删除角色菜单关系表-->
+    <delete id="deleteRoleMenu" parameterType="int">
+        delete from t_role_menu where role_id=#{id}
+    </delete>
+
+    <!--根据id删除角色-->
+    <delete id="deleteRole" parameterType="int">
+        delete from t_role where id=#{id}
+    </delete>
+
+    <!--根据id查询角色信息-->
+    <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Role">
+        select * from t_role where id=#{id}
+    </select>
+
+    <!--根据id查询角色拥有的权限项-->
+    <select id="findPermissionByRoleId" parameterType="int" resultType="java.lang.Integer">
+        select permission_id from t_role_permission where role_id=#{id}
+    </select>
+    <!--根据id查询角色拥有的菜单项-->
+    <select id="getMenuByRoleId" resultType="java.lang.Integer">
+        select menu_id from t_role_menu where role_id=#{id}
+    </select>
+
+    <!--更新角色信息-->
+    <update id="update" parameterType="com.itheima.health.pojo.Role">
+        update t_role
+        set
+            name=#{name},
+            keyword=#{keyword},
+            description=#{description}
+        where id=#{id}
+    </update>
 </mapper>

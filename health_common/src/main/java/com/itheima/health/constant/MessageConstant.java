@@ -70,5 +70,7 @@ public interface MessageConstant {
     static final String QUERY_USER_FAIL = "查询用户数据失败";
     static final String EDIT_USER_SUCCESS = "编辑用户数据成功";
     static final String DELETE_USER_SUCCESS = "删除用户数据成功";
-
+    static final String QUERY_ROLE_SUCCESS ="查询角色列表成功" ;
+    static final String QUERY_PERMISSION_SUCCESS ="查询角色列表成功" ;
+    static final String ADD_ROLE_SUCCESS = "新增角色成功";
 }
